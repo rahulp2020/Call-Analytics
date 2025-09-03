@@ -1,7 +1,7 @@
 # Requirment Description
 ###### Create a Python microservice that ingests sales‑call transcripts, stores them durably, and serves actionable conversation analytics through a small REST API.
 
-###Ingestion process
+### Ingestion process
 - Call huggingface API to get the transcript of the sales call.
 - Huggingface API: GET -> https://datasets-server.huggingface.co/rows?offset={}&limit{}
 - Response - 
@@ -24,20 +24,20 @@
 - Max 3 retries for status like on status code, limit exceed, timeout calls.
 - Handling the Concurrent request on API.
 - request timeout handling.
-####Classes
+#### Classes
 - Ingest -> creating the singleton class for ingestion.
 - Transcript -> abstract class for transcript.(Can use different strategies for different transcript dataset)
 - HuggingFaceTranscript -> concrete class for HuggingFace transcript dataset.
 - Session -> singleton class for aiohttp session.
-####Note
+#### Note
 - polling the API using offset and limit.
 - Storing json in same directory for now. Can be changed to any durable storage.
 - This ingestion process is scheduled to run after every X min.
 - celery process managing the scheduled Ingestion Process.
 
-###Data storage 
+### Data storage 
 - Using sqlite(for demo) for durable storage(can be replaced by postgres or any other).
-####Model
+#### Model
 - Call
   - id: primary key
   - agent_id: foreign key(reference to Agent table)(index)
@@ -56,17 +56,17 @@
 - Relations
   - One to Many relation between Agent and Call table.
 
-###Insight Processor(cal sentiment score talk ratio and embeddings for each call fetch by Ingestion Process)
+### Insight Processor(cal sentiment score talk ratio and embeddings for each call fetch by Ingestion Process)
 - cal agent talk ratio, customer sentiment score, embedding(models - SentenceTransformer, sentiment-analysis).
 - Run Transaction to Update the Call table with these insights.
 - Run Transaction to Update the Agent table with summary statistics.
 - Using celery worker for processing the insights.
-####Note
+#### Note
 - Handling update on Agent table using transaction and row level lock(select for update).
 - Retry and transaction time out.
 - using sqlalchemy ORM.
 
-###Celery
+### Celery
 - scheduling the Ingestion Process Periodically.
 - Async processing of insights Processor(fetched data process).
 - Off load the data processing task from Ingestion Process.
@@ -74,7 +74,7 @@
 - Celery - worker consume the task from the queue and invoke the data process.
 - Retry for process data and failed scheduling.
 
-###REST API(FastAPI)
+### REST API(FastAPI)
 - Serving Processed data through REST API.
 - API Endpoints (jwt authentication)
 
@@ -87,7 +87,7 @@ curl --location 'http://127.0.0.1:8000/signin' \
     "name":"rahul"
 }'
 ```
-response
+#### response
 ```bash
 {
     "name": "rahul",
@@ -100,7 +100,7 @@ curl --location 'http://127.0.0.1:8000/api/v1/calls/' \
 --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoicmFodWwiLCJleHAiOjE3NTY4NjI4ODQuMDM5MTU3fQ.Q42Sxzqi5ZI0NF6r37kalpXcnKK1FiHDtIdJHaIIkW8' \
 --header 'Cookie: csrftoken=yZI1GpMeX2RhBNrlxGwGbHI8rHXAPKXu'
 ```
-####response
+#### response
 ```bash
 {
     "total": 1,
@@ -130,7 +130,7 @@ curl --location 'http://127.0.0.1:8000/api/v1/calls/63896ecf-5859-48f7-8bc6-cddc
 --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoicmFodWwiLCJleHAiOjE3NTY4NjI4ODQuMDM5MTU3fQ.Q42Sxzqi5ZI0NF6r37kalpXcnKK1FiHDtIdJHaIIkW8' \
 --header 'Cookie: csrftoken=yZI1GpMeX2RhBNrlxGwGbHI8rHXAPKXu'
 ```
-####response
+#### response
 ```bash
 {
     "call_id": "63896ecf-5859-48f7-8bc6-cddcc0ce3b9d",
@@ -217,30 +217,30 @@ response
 ## Run locally with Docker
 Follow the steps below to run the application using Docker.
 
-####clone repo
+#### clone repo
 ```bash
 git clone https://github.com/rahulp2020/Call-Analytics.git
 cd Call-Analytics
 ```
 
-####build docker image and install dependencies
+#### build docker image and install dependencies
 ```bash
 docker-compose build
 ```
 
-####run the container
+#### run the container
 ```bash
 docker-compose up
 ```
 
-####verify Running Containers
+#### verify Running Containers
 ```bash
 docker ps
 ```
 
-#Access the FastAPI Endpoints
+# Access the FastAPI Endpoints
 
-####stop the container
+#### stop the container
 ```bash
 docker-compose down
 ```
