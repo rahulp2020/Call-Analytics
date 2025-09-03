@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    container_name: fastapi_app
+    command: uvicorn Apis.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=sqlite:///analytics.db
+      - JWT_SECRET_KEY=my-secret-key
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+
+  celery_worker:
+    build: .
+    container_name: celery_worker
+    command: celery -A CeleryProcess.celery_app worker -l info -Q ingestion,ai_processing
+    depends_on:
+      - redis
+      - web
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=sqlite:///analytics.db
+      - JWT_SECRET_KEY=my-secret-key
+    volumes:
+      - .:/app
+
+  celery_beat:
+    build: .
+    container_name: celery_beat
+    command: celery -A CeleryProcess.celery_app beat -l info
+    depends_on:
+      - redis
+      - web
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=sqlite:///analytics.db
+      - JWT_SECRET_KEY=my-secret-key
+    volumes:
+      - .:/app
