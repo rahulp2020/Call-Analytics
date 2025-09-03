@@ -3,15 +3,18 @@
 
 ### Ingestion process
 - Call huggingface API to get the transcript of the sales call.
-- Huggingface API: GET -> https://datasets-server.huggingface.co/rows?offset={}&limit{}
-- Response - 
+- Huggingface API:
+```bash
+curl --location 'https://datasets-server.huggingface.co/rows?dataset=MohammadOthman%2Fmo-customer-support-tweets-945k&config=default&split=train&offset=2&limit=2'
+```
+### Response
 ```json
 {
   "rows": [
-    {
-      "id": "string",
-      "transcript": "dict"
-    }
+            {
+                "output": "We understand your concerns and we would like for you to please send us a Direct Message, so that we can further assist you.",
+                "input": "Since I signed up with you....Since day 1"
+            }
   ],
   "total": 0,
   "limit": 0,
